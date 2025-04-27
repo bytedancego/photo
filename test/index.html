@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风景墙</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="css/chat-animation.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #3a5a8c;
+            --accent-color: #e74c3c;
+            --background-color: #f5f7fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-transform: translateY(-5px);
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            background: linear-gradient(-45deg, #f5f7fa, #e3e6e8, #d1d4d6, #c0c3c5);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        header {
+            background: linear-gradient(-45deg, #12c2e9, #c471ed, #f64f59, #4a6fa5);
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        header h1 {
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        header p {
+            position: relative;
+            z-index: 1;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .upload-area {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: transform var(--transition-speed);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            transform: var(--hover-transform);
+        }
+        
+        .upload-area::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(-45deg, #4a6fa5, #3a5a8c, #2d4a7c, #1e3a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all var(--transition-speed);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+        
+        .upload-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            animation: buttonShine 2s infinite;
+        }
+        
+        @keyframes buttonShine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-gap: 25px;
+            margin-bottom: 2rem;
+            perspective: 1000px;
+        }
+        
+        .image-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all var(--transition-speed);
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        
+        .image-card:hover {
+            transform: var(--hover-transform) rotateX(5deg);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .image-container {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-speed);
+        }
+        
+        .image-card:hover .image-container img {
+            transform: scale(1.1);
+        }
+        
+        .image-info {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to top, rgba(255,255,255,0.95), rgba(255,255,255,0.8));
+            backdrop-filter: blur(5px);
+        }
+        
+        .like-btn {
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            transition: all var(--transition-speed);
+            padding: 8px;
+            border-radius: 20px;
+        }
+        
+        .like-btn:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .like-btn.active {
+            color: var(--accent-color);
+            animation: likeAnimation 0.5s ease;
+        }
+        
+        @keyframes likeAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        .like-btn svg {
+            margin-right: 5px;
+            transition: transform var(--transition-speed);
+        }
+        
+        .like-btn:hover svg {
+            transform: scale(1.2);
+        }
+        
+        .like-count {
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        
+        .preview {
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            transition: transform var(--transition-speed);
+        }
+        
+        .preview img:hover {
+            transform: scale(1.05);
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+            text-align: center;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-images {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* 聊天窗口样式 */
+        .chat-container {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: transform var(--transition-speed);
+        }
+        
+        .chat-container:hover {
+            transform: var(--hover-transform);
+        }
+        
+        .chat-header {
+            background: linear-gradient(-45deg, #4a6fa5, #3a5a8c, #2d4a7c, #1e3a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform var(--transition-speed);
+        }
+        
+        .chat-toggle:hover {
+            transform: scale(1.2);
+        }
+        
+        .chat-body {
+            height: 300px;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+        }
+        
+        .chat-body.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: messageSlide 0.3s ease;
+        }
+        
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 12px 20px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+        
+        .message.ai .message-content {
+            background: white;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(-45deg, #4a6fa5, #3a5a8c, #2d4a7c, #1e3a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+        
+        #message-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            margin-right: 10px;
+            outline: none;
+            transition: border-color var(--transition-speed);
+        }
+        
+        #message-input:focus {
+            border-color: var(--primary-color);
+        }
+        
+        #send-button {
+            background: linear-gradient(-45deg, #4a6fa5, #3a5a8c, #2d4a7c, #1e3a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all var(--transition-speed);
+        }
+        
+        #send-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+        
+        /* 导航按钮 */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 20px;
+        }
+        
+        .nav-button {
+            background: linear-gradient(-45deg, #4a6fa5, #3a5a8c, #2d4a7c, #1e3a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all var(--transition-speed);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+        
+        .nav-button.active {
+            background: linear-gradient(-45deg, #1e3a6c, #2d4a7c, #3a5a8c, #4a6fa5);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-gap: 15px;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-button {
+                width: 80%;
+                margin: 5px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>风景墙</h1>
+            <p>上传并分享你喜欢的图片</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="nav-buttons">
+            <button class="nav-button active" data-section="gallery-section">图片画廊</button>
+            <button class="nav-button" data-section="chat-section">AI 聊天</button>
+        </div>
+        
+        <div id="gallery-section" class="section active">
+            <div class="upload-area">
+                <h2>上传新图片</h2>
+                <p>选择要上传的图片文件</p>
+                <input type="file" id="file-input" accept="image/*" multiple>
+                <label for="file-input" class="upload-btn">选择图片</label>
+                <div class="preview" id="preview"></div>
+                <div class="loading" id="loading">正在上传...</div>
+            </div>
+            
+            <div class="gallery" id="gallery">
+                <div class="no-images" id="no-images">
+                    还没有图片，请上传一些图片！
+                </div>
+            </div>
+        </div>
+        
+        <div id="chat-section" class="section">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>AI 助手</h3>
+                    <button id="chat-toggle">▼</button>
+                </div>
+                <div class="chat-body" id="chat-body">
+                    <!-- 消息会在这里动态添加 -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="message-input" placeholder="输入你的问题...">
+                    <button id="send-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入JavaScript文件 -->
+    <script src="js/gallery.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/navigation.js"></script>
+</body>
+</html> 
